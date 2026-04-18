@@ -2,7 +2,7 @@
 
 A feedforward neural network implemented in Go with no external dependencies.
 
-[![Go CI](https://github.com/wlbr/neuro/workflows/Go%20CI/badge.svg?branch=main)](https://github.com/wlbr/neuro/actions?query=workflow%3A%22Go+CI%22)
+[![Go CI](https://github.com/wlbr/neuro/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/wlbr/neuro/actions/workflows/ci.yml)
 [![Codecov Coverage](https://codecov.io/gh/wlbr/neuro/graph/badge.svg)](https://codecov.io/gh/wlbr/neuro)
 [![Go Report Card](https://goreportcard.com/badge/github.com/wlbr/neuro)](https://goreportcard.com/report/github.com/wlbr/neuro)
 [![Go Reference](https://pkg.go.dev/badge/github.com/wlbr/neuro.svg)](https://pkg.go.dev/github.com/wlbr/neuro)
