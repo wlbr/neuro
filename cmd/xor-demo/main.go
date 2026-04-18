@@ -35,7 +35,7 @@ import (
 	"fmt"
 	"log"
 
-	"ai/neural"
+	"github.com/wlbr/neuro/neural"
 )
 
 func main() {
