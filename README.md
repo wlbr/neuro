@@ -2,10 +2,10 @@
 
 A feedforward neural network implemented in Go with no external dependencies.
 
-[![Go CI](https://github.com/wlbr/ai/workflows/Go%20CI/badge.svg?branch=main)](https://github.com/wlbr/ai/actions?query=workflow%3A%22Go+CI%22)
-[![Codecov Coverage](https://codecov.io/gh/wlbr/ai/graph/badge.svg)](https://codecov.io/gh/wlbr/ai)
-[![Go Report Card](https://goreportcard.com/badge/github.com/wlbr/ai)](https://goreportcard.com/report/github.com/wlbr/ai)
-[![Go Reference](https://pkg.go.dev/badge/github.com/wlbr/ai.svg)](https://pkg.go.dev/github.com/wlbr/ai)
+[![Go CI](https://github.com/wlbr/neuro/workflows/Go%20CI/badge.svg?branch=main)](https://github.com/wlbr/neuro/actions?query=workflow%3A%22Go+CI%22)
+[![Codecov Coverage](https://codecov.io/gh/wlbr/neuro/graph/badge.svg)](https://codecov.io/gh/wlbr/neuro)
+[![Go Report Card](https://goreportcard.com/badge/github.com/wlbr/neuro)](https://goreportcard.com/report/github.com/wlbr/neuro)
+[![Go Reference](https://pkg.go.dev/badge/github.com/wlbr/neuro.svg)](https://pkg.go.dev/github.com/wlbr/neuro)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 The network has one hidden layer, uses sigmoid activation, and trains via backpropagation with bias terms. Weights are initialised using Xavier-like scaling (`N(0, 1/√fanIn)`).
@@ -32,7 +32,7 @@ make demo-load-gob
 ## Using the `neural` package
 
 ```go
-import "ai/neural"
+import "neuro/neural"
 
 // create a network: 2 inputs, 4 hidden nodes, 1 output, learning rate 0.7
 net, err := neural.NewNetwork(2, 4, 1, 0.7)
@@ -94,10 +94,10 @@ make clean            # remove saved model files
 
 | Resource | Link |
 |----------|------|
-| **Package Docs** | [pkg.go.dev](https://pkg.go.dev/github.com/wlbr/ai) |
-| **CI/CD Pipeline** | [GitHub Actions](https://github.com/wlbr/ai/actions) |
-| **Test Coverage** | [Codecov](https://codecov.io/gh/wlbr/ai) |
-| **Code Metrics** | [Go Report Card](https://goreportcard.com/report/github.com/wlbr/ai) |
-| **Lint Results** | [Go Vet](https://github.com/wlbr/ai/actions?query=workflow%3A%22Go+CI%22) |
+| **Package Docs** | [pkg.go.dev](https://pkg.go.dev/github.com/wlbr/neuro) |
+| **CI/CD Pipeline** | [GitHub Actions](https://github.com/wlbr/neuro/actions) |
+| **Test Coverage** | [Codecov](https://codecov.io/gh/wlbr/neuro) |
+| **Code Metrics** | [Go Report Card](https://goreportcard.com/report/github.com/wlbr/neuro) |
+| **Lint Results** | [Go Vet](https://github.com/wlbr/neuro/actions?query=workflow%3A%22Go+CI%22) |
 
 All code is automatically formatted with `gofmt`, linted with `go vet`, and tested with race detection enabled.
