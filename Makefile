@@ -34,8 +34,8 @@ test-race:
 	go test -v -race ./...
 
 test-coverage:
-	go test -v -race -coverprofile=coverage.out -covermode=atomic ./... 2>&1 | grep -v "go: no such tool" || true
-	@echo "✓ Coverage report generated: coverage.out (82.3%)"
+	go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+	@echo "✓ Coverage report generated: coverage.out"
 
 fmt:
 	gofmt -w .
