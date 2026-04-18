@@ -1,4 +1,4 @@
-# ai
+# neuro 
 
 A feedforward neural network implemented in Go with no external dependencies.
 
