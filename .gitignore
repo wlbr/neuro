@@ -59,12 +59,13 @@ coverage.txt
 *.ini
 
 db/
-*.json
 *.db
+*.json
+*.gob
 
 /pull
 /push
 
 
 # Built binaries
-xor-demo
+# xor-demo
