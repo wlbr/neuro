@@ -1,7 +1,8 @@
-.PHONY: demo demo-save demo-load demo-save-gob demo-load-gob test test-verbose test-race test-coverage fmt vet license-check license-add check ci clean
+.PHONY: demo demo-save demo-load demo-save-gob demo-load-gob tictactoe tictactoe-save tictactoe-load test test-verbose test-race test-coverage fmt vet license-check license-add check ci clean
 
 MODEL_JSON := xor-model.json
 MODEL_GOB  := xor-model.gob
+TTT_MODEL  := tictactoe-model.json
 
 demo:
 	go run ./cmd/xor-demo
@@ -23,6 +24,18 @@ $(MODEL_JSON):
 
 $(MODEL_GOB):
 	$(MAKE) demo-save-gob
+
+tictactoe:
+	go run ./cmd/tictactoe-demo
+
+tictactoe-save:
+	go run ./cmd/tictactoe-demo -format json -save $(TTT_MODEL)
+
+tictactoe-load: $(TTT_MODEL)
+	go run ./cmd/tictactoe-demo -format json -load $(TTT_MODEL)
+
+$(TTT_MODEL):
+	$(MAKE) tictactoe-save
 
 test:
 	go test ./...
@@ -56,4 +69,4 @@ check: fmt vet license-check test-race
 ci: fmt vet license-check test-race test-coverage
 
 clean:
-	rm -f $(MODEL_JSON) $(MODEL_GOB) coverage.out coverage.html
+	rm -f $(MODEL_JSON) $(MODEL_GOB) $(TTT_MODEL) coverage.out coverage.html

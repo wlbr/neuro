@@ -21,7 +21,11 @@
 package main
 
 import (
+	"flag"
+	"os"
 	"testing"
+
+	"github.com/wlbr/neuro/neural"
 )
 
 func TestXORData(t *testing.T) {
@@ -164,6 +168,101 @@ func TestXORDataConsistency(t *testing.T) {
 		if data1[i].Target[0] != data2[i].Target[0] {
 			t.Errorf("sample %d target differs", i)
 		}
+	}
+}
+
+func TestTrainXORSaveAndLoad(t *testing.T) {
+	network, err := TrainXOR(1000, 42)
+	if err != nil {
+		t.Fatalf("TrainXOR failed: %v", err)
+	}
+
+	tmpFile := t.TempDir() + "/xor-model.json"
+	if err := network.Save(tmpFile, neural.FormatJSON); err != nil {
+		t.Fatalf("Save failed: %v", err)
+	}
+
+	loaded, err := neural.Load(tmpFile, neural.FormatJSON)
+	if err != nil {
+		t.Fatalf("Load failed: %v", err)
+	}
+
+	// Loaded model should produce the same predictions.
+	for _, sample := range XORData() {
+		origOut, _ := network.Query(sample.Inputs)
+		loadedOut, _ := loaded.Query(sample.Inputs)
+		if origOut[0] != loadedOut[0] {
+			t.Errorf("inputs %v: original=%.4f loaded=%.4f", sample.Inputs, origOut[0], loadedOut[0])
+		}
+	}
+}
+
+func TestTrainXORSaveAndLoadGOB(t *testing.T) {
+	network, err := TrainXOR(1000, 7)
+	if err != nil {
+		t.Fatalf("TrainXOR failed: %v", err)
+	}
+
+	tmpFile := t.TempDir() + "/xor-model.gob"
+	if err := network.Save(tmpFile, neural.FormatGOB); err != nil {
+		t.Fatalf("Save failed: %v", err)
+	}
+
+	loaded, err := neural.Load(tmpFile, neural.FormatGOB)
+	if err != nil {
+		t.Fatalf("Load failed: %v", err)
+	}
+
+	for _, sample := range XORData() {
+		origOut, _ := network.Query(sample.Inputs)
+		loadedOut, _ := loaded.Query(sample.Inputs)
+		if origOut[0] != loadedOut[0] {
+			t.Errorf("inputs %v: original=%.4f loaded=%.4f", sample.Inputs, origOut[0], loadedOut[0])
+		}
+	}
+}
+
+func TestRunTrainAndPrint(t *testing.T) {
+	// Reset flags for this test.
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	os.Args = []string{"xor-demo", "-epochs", "100"}
+	if err := run(); err != nil {
+		t.Fatalf("run() error: %v", err)
+	}
+}
+
+func TestRunSaveAndLoad(t *testing.T) {
+	tmpDir := t.TempDir()
+	modelPath := tmpDir + "/test-model.json"
+
+	// Save.
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	os.Args = []string{"xor-demo", "-epochs", "100", "-save", modelPath}
+	if err := run(); err != nil {
+		t.Fatalf("run(save) error: %v", err)
+	}
+
+	// Load.
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	os.Args = []string{"xor-demo", "-load", modelPath}
+	if err := run(); err != nil {
+		t.Fatalf("run(load) error: %v", err)
+	}
+}
+
+func TestRunInvalidFormat(t *testing.T) {
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	os.Args = []string{"xor-demo", "-format", "xml"}
+	if err := run(); err == nil {
+		t.Fatal("expected error for invalid format")
+	}
+}
+
+func TestRunLoadMissingFile(t *testing.T) {
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	os.Args = []string{"xor-demo", "-load", "/nonexistent/model.json"}
+	if err := run(); err == nil {
+		t.Fatal("expected error for missing file")
 	}
 }
 

@@ -20,6 +20,13 @@ Go 1.25 or later.
 # train a model and print predictions
 make demo
 
+# train a tic-tac-toe neural player and evaluate vs Minimax
+make tictactoe
+
+# save / reload tic-tac-toe model
+make tictactoe-save
+make tictactoe-load
+
 # train, save to JSON, then reload and predict
 make demo-save
 make demo-load
@@ -64,7 +71,23 @@ net, err = neural.Load("model.gob",  neural.FormatGOB)
 | `-load` | _(none)_ | Path to load a model (skips training) |
 | `-epochs` | `15000` | Training epochs when creating a new model |
 
-### Format comparison
+## `cmd/tictactoe-demo`
+
+Trains a neural network to play tic-tac-toe by learning from minimax-optimal moves, then evaluates it against both a perfect (Minimax) and a random player.
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-epochs` | `200` | Training epochs |
+| `-games` | `10000` | Random games used to generate training data |
+| `-hidden` | `36` | Hidden layer nodes |
+| `-lr` | `0.1` | Learning rate |
+| `-seed` | `42` | Random seed |
+| `-eval` | `1000` | Games per evaluation matchup |
+| `-format` | `json` | Storage format: `json` or `gob` |
+| `-save` | _(none)_ | Path to save the trained model |
+| `-load` | _(none)_ | Path to load a model (skips training) |
+
+## Format comparison
 
 | | JSON | GOB |
 |-|------|-----|
@@ -77,6 +100,9 @@ net, err = neural.Load("model.gob",  neural.FormatGOB)
 
 ```sh
 make demo              # run the XOR demo
+make tictactoe        # train and evaluate tic-tac-toe neural player
+make tictactoe-save   # train and save tic-tac-toe model
+make tictactoe-load   # reload and evaluate saved tic-tac-toe model
 make test             # run all tests
 make test-verbose     # run all tests with -v
 make test-race        # run tests with race detection
