@@ -223,7 +223,7 @@ func TestOutputsAreInValidRange(t *testing.T) {
 	}
 
 	for i := 0; i < 100; i++ {
-		outputs, err := n.Query([]float64{float64(i%2), float64((i+1)%2)})
+		outputs, err := n.Query([]float64{float64(i % 2), float64((i + 1) % 2)})
 		if err != nil {
 			t.Fatalf("Query error = %v", err)
 		}
