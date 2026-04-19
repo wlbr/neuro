@@ -34,6 +34,8 @@ type TrainingSample struct {
 	BestMove int
 }
 
+// boardPlayerKey is a deduplication key combining a board state with the
+// current player, used to eliminate duplicate training samples.
 type boardPlayerKey struct {
 	board  Board
 	player int

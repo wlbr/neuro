@@ -18,9 +18,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// Package neural implements a single-hidden-layer feedforward neural network
-// trained via backpropagation. All matrix arithmetic is done with plain Go
-// slices; the package has no external dependencies.
 package neural
 
 import (
@@ -43,6 +40,8 @@ const (
 	FormatGOB StorageFormat = "gob"
 )
 
+// networkSnapshot is the serialisable representation of a Network used for
+// JSON and GOB persistence.
 type networkSnapshot struct {
 	InputNodes          int         `json:"input_nodes"`
 	HiddenNodes         int         `json:"hidden_nodes"`
@@ -125,6 +124,7 @@ func ParseStorageFormat(value string) (StorageFormat, error) {
 	}
 }
 
+// snapshot returns a serialisable copy of the network's state.
 func (n *Network) snapshot() networkSnapshot {
 	return networkSnapshot{
 		InputNodes:          n.inputNodes,
@@ -138,6 +138,7 @@ func (n *Network) snapshot() networkSnapshot {
 	}
 }
 
+// networkFromSnapshot validates and reconstructs a Network from a decoded snapshot.
 func networkFromSnapshot(snapshot networkSnapshot) (*Network, error) {
 	if snapshot.InputNodes <= 0 || snapshot.HiddenNodes <= 0 || snapshot.OutputNodes <= 0 {
 		return nil, fmt.Errorf("snapshot node counts must be positive")
@@ -170,6 +171,7 @@ func networkFromSnapshot(snapshot networkSnapshot) (*Network, error) {
 	}, nil
 }
 
+// validateMatrix checks that matrix has the expected dimensions.
 func validateMatrix(matrix [][]float64, wantRows, wantCols int, name string) error {
 	if len(matrix) != wantRows {
 		return fmt.Errorf("%s row count %d does not match expected %d", name, len(matrix), wantRows)
@@ -183,6 +185,7 @@ func validateMatrix(matrix [][]float64, wantRows, wantCols int, name string) err
 	return nil
 }
 
+// cloneMatrix returns a deep copy of a two-dimensional slice.
 func cloneMatrix(matrix [][]float64) [][]float64 {
 	cloned := make([][]float64, len(matrix))
 	for row := range matrix {

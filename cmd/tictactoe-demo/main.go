@@ -18,6 +18,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+// Command tictactoe-demo trains a neural network to play tic-tac-toe by
+// learning from minimax-optimal moves. After training it evaluates the
+// network against both a perfect (Minimax) and a random player, then
+// displays a sample game.
+//
+// Usage:
+//
+//	tictactoe-demo [-epochs N] [-games N] [-hidden N] [-lr F] [-seed N]
+//	               [-eval N] [-format json|gob] [-save path] [-load path]
 package main
 
 import (

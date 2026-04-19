@@ -22,8 +22,10 @@ package main
 
 import "fmt"
 
+// boardSize is the number of cells on the tic-tac-toe board (3×3).
 const boardSize = 9
 
+// Cell state constants: empty, X (first player), O (second player).
 const (
 	cellEmpty = 0
 	cellX     = 1
@@ -39,12 +41,15 @@ const (
 //	6 | 7 | 8
 type Board [boardSize]int
 
+// winLines lists all eight winning three-in-a-row combinations.
 var winLines = [8][3]int{
 	{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, // rows
 	{0, 3, 6}, {1, 4, 7}, {2, 5, 8}, // columns
 	{0, 4, 8}, {2, 4, 6}, // diagonals
 }
 
+// winner returns cellX or cellO if that player has three in a row,
+// or cellEmpty if neither player has won.
 func (b Board) winner() int {
 	for _, line := range winLines {
 		if b[line[0]] != cellEmpty &&
@@ -56,6 +61,7 @@ func (b Board) winner() int {
 	return cellEmpty
 }
 
+// emptyCells returns the indices of all unoccupied positions.
 func (b Board) emptyCells() []int {
 	cells := make([]int, 0, boardSize)
 	for i, c := range b {
@@ -66,6 +72,7 @@ func (b Board) emptyCells() []int {
 	return cells
 }
 
+// isFull reports whether every cell is occupied.
 func (b Board) isFull() bool {
 	for _, c := range b {
 		if c == cellEmpty {
@@ -75,6 +82,7 @@ func (b Board) isFull() bool {
 	return true
 }
 
+// isOver reports whether the game has ended (win or draw).
 func (b Board) isOver() bool {
 	return b.winner() != cellEmpty || b.isFull()
 }
@@ -96,6 +104,7 @@ func (b Board) encode(player int) []float64 {
 	return inputs
 }
 
+// String returns a human-readable 3×3 board with X, O, and spaces.
 func (b Board) String() string {
 	sym := func(c int) rune {
 		switch c {
@@ -115,6 +124,7 @@ func (b Board) String() string {
 	)
 }
 
+// cellName returns "X" or "O" for the given player constant.
 func cellName(player int) string {
 	if player == cellX {
 		return "X"

@@ -42,16 +42,19 @@ func NewRandomPlayer(seed int64) *RandomPlayer {
 	return &RandomPlayer{rng: rand.New(rand.NewSource(seed))}
 }
 
+// ChooseMove picks a random empty cell on the board.
 func (p *RandomPlayer) ChooseMove(b Board, _ int) int {
 	cells := b.emptyCells()
 	return cells[p.rng.Intn(len(cells))]
 }
 
+// Name returns "Random".
 func (p *RandomPlayer) Name() string { return "Random" }
 
 // MinimaxPlayer plays optimally using the minimax algorithm.
 type MinimaxPlayer struct{}
 
+// ChooseMove returns the optimal move determined by the minimax algorithm.
 func (p MinimaxPlayer) ChooseMove(b Board, player int) int {
 	bestScore := -1000
 	bestMove := -1
@@ -67,8 +70,11 @@ func (p MinimaxPlayer) ChooseMove(b Board, player int) int {
 	return bestMove
 }
 
+// Name returns "Minimax".
 func (p MinimaxPlayer) Name() string { return "Minimax" }
 
+// minimax recursively evaluates a board position and returns a score from the
+// perspective of originalPlayer. Higher scores are better for originalPlayer.
 func minimax(b Board, depth int, maximizing bool, originalPlayer int) int {
 	opp := -originalPlayer
 	switch b.winner() {
@@ -109,6 +115,7 @@ type NeuralPlayer struct {
 	network *neural.Network
 }
 
+// ChooseMove queries the neural network and picks the highest-scored empty cell.
 func (p *NeuralPlayer) ChooseMove(b Board, player int) int {
 	inputs := b.encode(player)
 	outputs, err := p.network.Query(inputs)
@@ -128,4 +135,5 @@ func (p *NeuralPlayer) ChooseMove(b Board, player int) int {
 	return bestMove
 }
 
+// Name returns "Neural".
 func (p *NeuralPlayer) Name() string { return "Neural" }
