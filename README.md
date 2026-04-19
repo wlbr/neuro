@@ -12,7 +12,7 @@ The network has one hidden layer, uses sigmoid activation, and trains via backpr
 
 ## Requirements
 
-Go 1.26 or later.
+Go 1.25 or later.
 
 ## Quick start
 
@@ -32,7 +32,7 @@ make demo-load-gob
 ## Using the `neural` package
 
 ```go
-import "neuro/neural"
+import "github.com/wlbr/neuro/neural"
 
 // create a network: 2 inputs, 4 hidden nodes, 1 output, learning rate 0.7
 net, err := neural.NewNetwork(2, 4, 1, 0.7)

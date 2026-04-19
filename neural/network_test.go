@@ -605,3 +605,84 @@ func TestSaveAndLoadPreservesExactWeights(t *testing.T) {
 		t.Errorf("weights not preserved: want %f, got %f", want[0], got[0])
 	}
 }
+
+func TestTransposeMatVecMulEmptyMatrix(t *testing.T) {
+	t.Parallel()
+
+	result := transposeMatVecMul([][]float64{}, []float64{})
+	if result != nil {
+		t.Errorf("expected nil for empty matrix, got %v", result)
+	}
+}
+
+func TestTrainRejectsWrongInputLength(t *testing.T) {
+	t.Parallel()
+
+	n, err := NewNetworkWithSeed(2, 3, 1, 0.3, 1)
+	if err != nil {
+		t.Fatalf("NewNetworkWithSeed() error = %v", err)
+	}
+
+	if err := n.Train([]float64{1}, []float64{0}); err == nil {
+		t.Fatal("expected input length error")
+	}
+}
+
+func TestNetworkFromSnapshotValidatesOutputBiasDimensions(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "bad.json")
+	badData := `{
+		"input_nodes": 2,
+		"hidden_nodes": 3,
+		"output_nodes": 1,
+		"learning_rate": 0.5,
+		"input_hidden_weights": [[1,2],[3,4],[5,6]],
+		"hidden_output_weights": [[1,2,3]],
+		"hidden_biases": [0,0,0],
+		"output_biases": [0,0]
+	}`
+	if err := os.WriteFile(path, []byte(badData), 0644); err != nil {
+		t.Fatalf("WriteFile error = %v", err)
+	}
+
+	if _, err := Load(path, FormatJSON); err == nil {
+		t.Fatal("expected error loading snapshot with wrong output bias dimensions")
+	}
+}
+
+func TestNetworkFromSnapshotValidatesHiddenOutputWeightRows(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "bad.json")
+	badData := `{
+		"input_nodes": 2,
+		"hidden_nodes": 3,
+		"output_nodes": 1,
+		"learning_rate": 0.5,
+		"input_hidden_weights": [[1,2],[3,4],[5,6]],
+		"hidden_output_weights": [[1,2,3],[4,5,6]],
+		"hidden_biases": [0,0,0],
+		"output_biases": [0]
+	}`
+	if err := os.WriteFile(path, []byte(badData), 0644); err != nil {
+		t.Fatalf("WriteFile error = %v", err)
+	}
+
+	if _, err := Load(path, FormatJSON); err == nil {
+		t.Fatal("expected error loading snapshot with wrong hidden-output weight row count")
+	}
+}
+
+func TestLoadRejectsCorruptedGOBFile(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "corrupt.gob")
+	if err := os.WriteFile(path, []byte("not valid gob data"), 0644); err != nil {
+		t.Fatalf("WriteFile error = %v", err)
+	}
+
+	if _, err := Load(path, FormatGOB); err == nil {
+		t.Fatal("expected error loading corrupted GOB file")
+	}
+}

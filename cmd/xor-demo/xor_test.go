@@ -166,3 +166,23 @@ func TestXORDataConsistency(t *testing.T) {
 		}
 	}
 }
+
+func TestTrainXORZeroEpochs(t *testing.T) {
+	network, err := TrainXOR(0, 42)
+	if err != nil {
+		t.Fatalf("TrainXOR(0) failed: %v", err)
+	}
+
+	if network == nil {
+		t.Fatal("expected non-nil network even with zero epochs")
+	}
+
+	outputs, err := network.Query([]float64{0, 1})
+	if err != nil {
+		t.Fatalf("Query failed: %v", err)
+	}
+
+	if outputs[0] <= 0 || outputs[0] >= 1 {
+		t.Errorf("output out of sigmoid range: %f", outputs[0])
+	}
+}
