@@ -38,6 +38,13 @@ import (
 )
 
 func main() {
+	if err := run(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
 	epochs := flag.Int("epochs", 200, "training epochs")
 	games := flag.Int("games", 10000, "random games for training data generation")
 	hidden := flag.Int("hidden", 36, "hidden layer nodes")
@@ -51,8 +58,7 @@ func main() {
 
 	sf, err := neural.ParseStorageFormat(*format)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "invalid format: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("invalid format: %w", err)
 	}
 
 	var network *neural.Network
@@ -61,8 +67,7 @@ func main() {
 		fmt.Printf("Loading model from %s...\n", *loadPath)
 		network, err = neural.Load(*loadPath, sf)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "load error: %v\n", err)
-			os.Exit(1)
+			return fmt.Errorf("load error: %w", err)
 		}
 		fmt.Println("  Model loaded.")
 	} else {
@@ -74,8 +79,7 @@ func main() {
 			*hidden, *lr, *seed)
 		network, err = TrainNetwork(samples, *hidden, *epochs, *lr, *seed)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "training error: %v\n", err)
-			os.Exit(1)
+			return fmt.Errorf("training error: %w", err)
 		}
 		fmt.Println()
 	}
@@ -102,9 +106,9 @@ func main() {
 	if *savePath != "" {
 		fmt.Printf("\nSaving model to %s...\n", *savePath)
 		if err := network.Save(*savePath, sf); err != nil {
-			fmt.Fprintf(os.Stderr, "save error: %v\n", err)
-			os.Exit(1)
+			return fmt.Errorf("save error: %w", err)
 		}
 		fmt.Println("  Model saved.")
 	}
+	return nil
 }

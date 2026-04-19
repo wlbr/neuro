@@ -33,12 +33,19 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
+	"os"
 
 	"github.com/wlbr/neuro/neural"
 )
 
 func main() {
+	if err := run(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
 	formatValue := flag.String("format", "json", "model storage format: json or gob")
 	savePath := flag.String("save", "", "path to save the trained model")
 	loadPath := flag.String("load", "", "path to load a previously trained model")
@@ -47,25 +54,25 @@ func main() {
 
 	format, err := neural.ParseStorageFormat(*formatValue)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	var network *neural.Network
 	if *loadPath != "" {
 		network, err = neural.Load(*loadPath, format)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 	} else {
 		network, err = TrainXOR(*epochs, 1)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 	}
 
 	if *savePath != "" {
 		if err := network.Save(*savePath, format); err != nil {
-			log.Fatal(err)
+			return err
 		}
 		fmt.Printf("saved model to %s using %s\n", *savePath, format)
 	}
@@ -73,9 +80,10 @@ func main() {
 	for _, sample := range XORData() {
 		outputs, err := network.Query(sample.Inputs)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		fmt.Printf("inputs=%v target=%v prediction=%.4f\n", sample.Inputs, sample.Target, outputs[0])
 	}
+	return nil
 }

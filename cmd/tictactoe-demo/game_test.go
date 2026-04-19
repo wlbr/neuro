@@ -95,12 +95,58 @@ func TestBoardEncode(t *testing.T) {
 	}
 }
 
+func TestBoardIsFull(t *testing.T) {
+	t.Parallel()
+	if (Board{}).isFull() {
+		t.Error("empty board should not be full")
+	}
+	partial := Board{cellX, cellEmpty, cellO, cellEmpty, cellX, cellEmpty, cellO, cellEmpty, cellX}
+	if partial.isFull() {
+		t.Error("partial board should not be full")
+	}
+	full := Board{cellX, cellO, cellX, cellX, cellO, cellO, cellO, cellX, cellX}
+	if !full.isFull() {
+		t.Error("full board should be full")
+	}
+}
+
 func TestBoardString(t *testing.T) {
 	t.Parallel()
 	b := Board{cellX, cellO, cellEmpty, cellEmpty, cellX, cellEmpty, cellEmpty, cellEmpty, cellO}
 	s := b.String()
 	if len(s) == 0 {
 		t.Fatal("String() returned empty")
+	}
+}
+
+func TestBoardStringContainsMarkers(t *testing.T) {
+	t.Parallel()
+	b := Board{cellX, cellO, cellEmpty, cellEmpty, cellX, cellEmpty, cellEmpty, cellEmpty, cellO}
+	s := b.String()
+	xCount, oCount := 0, 0
+	for _, r := range s {
+		switch r {
+		case 'X':
+			xCount++
+		case 'O':
+			oCount++
+		}
+	}
+	if xCount != 2 {
+		t.Errorf("expected 2 X markers, got %d", xCount)
+	}
+	if oCount != 2 {
+		t.Errorf("expected 2 O markers, got %d", oCount)
+	}
+}
+
+func TestCellName(t *testing.T) {
+	t.Parallel()
+	if got := cellName(cellX); got != "X" {
+		t.Errorf("cellName(cellX) = %q, want \"X\"", got)
+	}
+	if got := cellName(cellO); got != "O" {
+		t.Errorf("cellName(cellO) = %q, want \"O\"", got)
 	}
 }
 
