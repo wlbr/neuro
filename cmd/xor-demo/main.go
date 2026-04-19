@@ -50,16 +50,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	trainingData := []struct {
-		inputs []float64
-		target []float64
-	}{
-		{inputs: []float64{0, 0}, target: []float64{0}},
-		{inputs: []float64{0, 1}, target: []float64{1}},
-		{inputs: []float64{1, 0}, target: []float64{1}},
-		{inputs: []float64{1, 1}, target: []float64{0}},
-	}
-
 	var network *neural.Network
 	if *loadPath != "" {
 		network, err = neural.Load(*loadPath, format)
@@ -67,17 +57,9 @@ func main() {
 			log.Fatal(err)
 		}
 	} else {
-		network, err = neural.NewNetworkWithSeed(2, 4, 1, 0.7, 1)
+		network, err = TrainXOR(*epochs, 1)
 		if err != nil {
 			log.Fatal(err)
-		}
-
-		for epoch := 0; epoch < *epochs; epoch++ {
-			for _, sample := range trainingData {
-				if err := network.Train(sample.inputs, sample.target); err != nil {
-					log.Fatal(err)
-				}
-			}
 		}
 	}
 
@@ -88,12 +70,12 @@ func main() {
 		fmt.Printf("saved model to %s using %s\n", *savePath, format)
 	}
 
-	for _, sample := range trainingData {
-		outputs, err := network.Query(sample.inputs)
+	for _, sample := range XORData() {
+		outputs, err := network.Query(sample.Inputs)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		fmt.Printf("inputs=%v target=%v prediction=%.4f\n", sample.inputs, sample.target, outputs[0])
+		fmt.Printf("inputs=%v target=%v prediction=%.4f\n", sample.Inputs, sample.Target, outputs[0])
 	}
 }
