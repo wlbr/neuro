@@ -23,6 +23,10 @@ make demo
 # train a tic-tac-toe neural player and evaluate vs Minimax
 make tictactoe
 
+# save / reload tic-tac-toe model
+make tictactoe-save
+make tictactoe-load
+
 # train, save to JSON, then reload and predict
 make demo-save
 make demo-load
@@ -83,7 +87,7 @@ Trains a neural network to play tic-tac-toe by learning from minimax-optimal mov
 | `-save` | _(none)_ | Path to save the trained model |
 | `-load` | _(none)_ | Path to load a model (skips training) |
 
-### Format comparison
+## Format comparison
 
 | | JSON | GOB |
 |-|------|-----|
@@ -97,6 +101,8 @@ Trains a neural network to play tic-tac-toe by learning from minimax-optimal mov
 ```sh
 make demo              # run the XOR demo
 make tictactoe        # train and evaluate tic-tac-toe neural player
+make tictactoe-save   # train and save tic-tac-toe model
+make tictactoe-load   # reload and evaluate saved tic-tac-toe model
 make test             # run all tests
 make test-verbose     # run all tests with -v
 make test-race        # run tests with race detection
