@@ -21,6 +21,7 @@
 package neural
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 )
@@ -164,5 +165,177 @@ func TestParseStorageFormatRejectsInvalidValue(t *testing.T) {
 
 	if _, err := ParseStorageFormat("yaml"); err == nil {
 		t.Fatal("expected invalid format error")
+	}
+}
+
+func TestTrainRejectsWrongTargetLength(t *testing.T) {
+	t.Parallel()
+
+	n, err := NewNetworkWithSeed(2, 3, 1, 0.3, 1)
+	if err != nil {
+		t.Fatalf("NewNetworkWithSeed() error = %v", err)
+	}
+
+	if err := n.Train([]float64{0, 1}, []float64{1, 0}); err == nil {
+		t.Fatal("expected target length error")
+	}
+}
+
+func TestNewNetworkDifferentArchitectures(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		inputs, hidden, outputs int
+	}{
+		{1, 2, 1},
+		{3, 5, 2},
+		{2, 1, 3},
+		{10, 20, 5},
+	}
+
+	for _, tc := range tests {
+		n, err := NewNetworkWithSeed(tc.inputs, tc.hidden, tc.outputs, 0.5, 42)
+		if err != nil {
+			t.Fatalf("NewNetworkWithSeed(%d,%d,%d) error = %v", tc.inputs, tc.hidden, tc.outputs, err)
+		}
+
+		if n == nil {
+			t.Fatal("expected non-nil network")
+		}
+
+		outputs, err := n.Query(make([]float64, tc.inputs))
+		if err != nil {
+			t.Fatalf("Query error = %v", err)
+		}
+
+		if len(outputs) != tc.outputs {
+			t.Errorf("expected %d outputs, got %d", tc.outputs, len(outputs))
+		}
+	}
+}
+
+func TestOutputsAreInValidRange(t *testing.T) {
+	t.Parallel()
+
+	n, err := NewNetworkWithSeed(2, 3, 1, 0.5, 42)
+	if err != nil {
+		t.Fatalf("NewNetworkWithSeed() error = %v", err)
+	}
+
+	for i := 0; i < 100; i++ {
+		outputs, err := n.Query([]float64{float64(i%2), float64((i+1)%2)})
+		if err != nil {
+			t.Fatalf("Query error = %v", err)
+		}
+
+		for _, out := range outputs {
+			if out <= 0 || out >= 1 {
+				t.Errorf("output %f out of range (0, 1)", out)
+			}
+		}
+	}
+}
+
+func TestDifferentSeedsDifferentWeights(t *testing.T) {
+	t.Parallel()
+
+	n1, err := NewNetworkWithSeed(2, 3, 1, 0.5, 1)
+	if err != nil {
+		t.Fatalf("NewNetworkWithSeed() error = %v", err)
+	}
+
+	n2, err := NewNetworkWithSeed(2, 3, 1, 0.5, 2)
+	if err != nil {
+		t.Fatalf("NewNetworkWithSeed() error = %v", err)
+	}
+
+	out1, _ := n1.Query([]float64{0.5, 0.5})
+	out2, _ := n2.Query([]float64{0.5, 0.5})
+
+	if out1[0] == out2[0] {
+		t.Error("networks with different seeds produced identical outputs")
+	}
+}
+
+func TestSameSeedProducesIdenticalBehavior(t *testing.T) {
+	t.Parallel()
+
+	n1, _ := NewNetworkWithSeed(2, 4, 1, 0.7, 42)
+	n2, _ := NewNetworkWithSeed(2, 4, 1, 0.7, 42)
+
+	input := []float64{0.3, 0.7}
+	target := []float64{0.5}
+
+	for i := 0; i < 10; i++ {
+		n1.Train(input, target)
+		n2.Train(input, target)
+	}
+
+	out1, _ := n1.Query(input)
+	out2, _ := n2.Query(input)
+
+	if out1[0] != out2[0] {
+		t.Errorf("identical networks produced different outputs: %f vs %f", out1[0], out2[0])
+	}
+}
+
+func TestLoadRejectsCorruptedFile(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "corrupt.json")
+	if err := os.WriteFile(path, []byte("{invalid json"), 0644); err != nil {
+		t.Fatalf("WriteFile error = %v", err)
+	}
+
+	if _, err := Load(path, FormatJSON); err == nil {
+		t.Fatal("expected error loading corrupted JSON file")
+	}
+}
+
+func TestLoadRejectsInvalidFormat(t *testing.T) {
+	t.Parallel()
+
+	path := filepath.Join(t.TempDir(), "model.unknown")
+	if err := os.WriteFile(path, []byte("{}"), 0644); err != nil {
+		t.Fatalf("WriteFile error = %v", err)
+	}
+
+	if _, err := Load(path, StorageFormat("unknown")); err == nil {
+		t.Fatal("expected error for unsupported storage format")
+	}
+}
+
+func TestSaveRejectsInvalidFormat(t *testing.T) {
+	t.Parallel()
+
+	n, _ := NewNetworkWithSeed(2, 3, 1, 0.5, 1)
+	path := filepath.Join(t.TempDir(), "model.unknown")
+
+	if err := n.Save(path, StorageFormat("unknown")); err == nil {
+		t.Fatal("expected error for unsupported storage format")
+	}
+}
+
+func TestLoadRejectsInvalidNodeCounts(t *testing.T) {
+	t.Parallel()
+
+	// Create a valid snapshot but corrupt the node counts
+	path := filepath.Join(t.TempDir(), "bad.json")
+	badData := `{
+		"input_nodes": 0,
+		"hidden_nodes": 3,
+		"output_nodes": 1,
+		"learning_rate": 0.5,
+		"input_hidden_weights": [],
+		"hidden_output_weights": [],
+		"hidden_biases": [0,0,0],
+		"output_biases": [0]
+	}`
+	if err := os.WriteFile(path, []byte(badData), 0644); err != nil {
+		t.Fatalf("WriteFile error = %v", err)
+	}
+
+	if _, err := Load(path, FormatJSON); err == nil {
+		t.Fatal("expected error loading snapshot with invalid node count")
 	}
 }
