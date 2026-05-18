@@ -4,26 +4,25 @@ MODEL_JSON := xor-model.json
 MODEL_GOB  := xor-model.gob
 TTT_MODEL  := tictactoe-model.json
 
-demo:
+xor:
 	go run ./cmd/xor-demo
 
-demo-save:
+xor-save:
 	go run ./cmd/xor-demo -format json -save $(MODEL_JSON)
 
-demo-load: $(MODEL_JSON)
-	go run ./cmd/xor-demo -format json -load $(MODEL_JSON)
-
-demo-save-gob:
+xor-load: $(MODEL_JSON)
+	go run ./cmd/xor-demo -format json -load $(MODEL_Jr
+xor-save-gob:
 	go run ./cmd/xor-demo -format gob -save $(MODEL_GOB)
 
-demo-load-gob: $(MODEL_GOB)
+xor-load-gob: $(MODEL_GOB)
 	go run ./cmd/xor-demo -format gob -load $(MODEL_GOB)
 
 $(MODEL_JSON):
-	$(MAKE) demo-save
+	$(MAKE) xor-save
 
 $(MODEL_GOB):
-	$(MAKE) demo-save-gob
+	$(MAKE) xor-save-gob
 
 tictactoe:
 	go run ./cmd/tictactoe-demo
